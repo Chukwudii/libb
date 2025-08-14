@@ -1,8 +1,24 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
+from typing import Optional
 
-class AdminSchema(BaseModel):
+# Input model for signup
+class AdminCreateSchema(BaseModel):
     name: str
     email: EmailStr
     password: str = Field(..., min_length=6)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Input model for login
+class AdminLoginSchema(BaseModel):
+    email: EmailStr
+    password: str
+
+# Output model for responses
+class AdminResponseSchema(BaseModel):
+    id: str
+    name: str
+    email: EmailStr
+    created_at: datetime
+
+    class Config:
+        orm_mode = True

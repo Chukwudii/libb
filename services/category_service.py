@@ -4,7 +4,7 @@ from models.category import CategorySchema
 from models.category import UpdateCategoryName
 from pydantic import BaseModel
 CATEGORY_COLLECTION = db["categories"]
-
+import uuid
 
 # Create Category
 async def create_category(category: CategorySchema):
@@ -43,18 +43,20 @@ async def delete_category(category_id: str):
 
 async def add_books_to_category(category_id: str, new_books: list):
     for book in new_books:
-        book["_id"] = ObjectId()  # Assign a unique ID to each book
+        # Use UUIDv4 instead of MongoDB ObjectId for book IDs
+        book["id"] = str(uuid.uuid4())
+
     result = await CATEGORY_COLLECTION.update_one(
         {"_id": ObjectId(category_id)},
         {"$push": {"books": {"$each": new_books}}}
     )
     return result.modified_count > 0
-
 # Update a specific book inside a category
+# Update a specific book in a category
 async def update_book_in_category(category_id: str, book_id: str, updated_book: dict):
-    updated_book["_id"] = ObjectId(book_id)  # Ensure we keep the same ID
+    updated_book["id"] = book_id  # Keep the same UUID
     result = await CATEGORY_COLLECTION.update_one(
-        {"_id": ObjectId(category_id), "books._id": ObjectId(book_id)},
+        {"_id": ObjectId(category_id), "books.id": book_id},
         {"$set": {"books.$": updated_book}}
     )
     return result.modified_count > 0
@@ -64,7 +66,8 @@ async def update_book_in_category(category_id: str, book_id: str, updated_book: 
 async def delete_book_from_category(category_id: str, book_id: str):
     result = await CATEGORY_COLLECTION.update_one(
         {"_id": ObjectId(category_id)},
-        {"$pull": {"books": {"_id": ObjectId(book_id)}}}
+        {"$pull": {"books": {"id": book_id}}}
     )
     return result.modified_count > 0
+
 

@@ -2,9 +2,10 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from bson import ObjectId
+from uuid import uuid4
 
 class BookItem(BaseModel):
-    id: Optional[str] = Field(alias="_id", default=None)
+    id: str = Field(default_factory=lambda: str(uuid4()))
     title: str
     author: str
     publisher: str
