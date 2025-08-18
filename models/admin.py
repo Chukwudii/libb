@@ -22,3 +22,17 @@ class AdminResponseSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+class TokenSchema(BaseModel):
+    access_token: Optional[str] = None
+    id: str
+    name: str
+    email : str
+
+class UpdateAdmin(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+
+class UpdateAdminPassword(BaseModel):
+    old_password: str = Field(..., min_length=6)
+    new_password: str = Field(..., min_length=6)
