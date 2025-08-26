@@ -5,6 +5,7 @@ from jose import jwt
 from models.user import UserCreateSchema, UserLoginSchema, UserResponseSchema, TokenSchema,UpdateUser,UpdateUserPassword
 from database import db
 from bson import ObjectId
+from typing import List
 # Use the users collection from your db
 USER_COLLECTION = db["users"]
 
@@ -105,3 +106,30 @@ async def update_admin_password(admin_id: str, old_password: str, new_password: 
         return False, "Password update failed"
 
     return True, "Password updated successfully"
+
+async def get_all_users() -> List[UserResponseSchema]:
+    """Fetch all users from MongoDB"""
+    users_cursor = USER_COLLECTION.find()
+    users = []
+    async for user in users_cursor:
+        users.append(UserResponseSchema(
+            id=str(user["_id"]),
+            name=user.get("name"),
+            email=user.get("email"),
+            created_at=user.get("created_at")
+        ))
+    return users
+
+
+async def get_user_by_id(user_id: str):
+    """Fetch a single user by ID from MongoDB"""
+    user = await USER_COLLECTION.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        return None
+
+    return UserResponseSchema(
+        id=str(user["_id"]),
+        name=user.get("name"),
+        email=user.get("email"),
+        created_at=user.get("created_at"),
+    )

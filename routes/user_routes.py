@@ -1,6 +1,7 @@
 from fastapi import APIRouter,HTTPException
 from models.user import UserCreateSchema, UserLoginSchema, UserResponseSchema, TokenSchema,UpdateUser,UpdateUserPassword
 from services import user_service
+from typing import List
 
 router = APIRouter(prefix="/user", tags=["User"])
 
@@ -27,4 +28,12 @@ async def update_admin_password_route(admin_id: str, password_data: UpdateUserPa
         raise HTTPException(status_code=400, detail=message)
     return {"message": message}
 
-
+@router.get("/", response_model=List[UserResponseSchema])
+async def get_users():
+    return await user_service.get_all_users()
+@router.get("/{user_id}", response_model=UserResponseSchema)
+async def get_user(user_id: str):
+    user = await user_service.get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

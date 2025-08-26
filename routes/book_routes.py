@@ -29,7 +29,7 @@ async def get_book(book_id: str):
 async def update_book(book_id: str, updated_book: UpdateBookItem):
     updated = await book_service.update_book(book_id, updated_book)
     if not updated:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise HTTPException(status_code=404, detail="No update made")
     return {"message": "Book updated successfully"}
 
 # Update only title
